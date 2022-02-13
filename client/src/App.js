@@ -8,9 +8,14 @@ function App() {
   const [transactions, setTransactions] = useState([]);
 
   const getData = () => {
-    fetch("https://stocks-task.herokuapp.com/trans").then((response) =>
-      console.log(response.data)
-    );
+    axios.get("/trans").then((res) => {
+      console.log(res.data);
+      if (res.data.success) {
+        setAverage(res.data.average);
+        setProfit(res.data.profit);
+        setTransactions(res.data.trans);
+      }
+    });
   };
 
   useEffect(() => {
@@ -18,7 +23,7 @@ function App() {
   });
 
   const reset = () => {
-    axios.delete("/reset").then((res) => {
+    axios.delete("/reset", {}).then((res) => {
       getData();
       console.log(res);
     });
