@@ -8,7 +8,7 @@ function App() {
   const [transactions, setTransactions] = useState([]);
 
   const getData = () => {
-    axios.get("/trans", {}).then((res) => {
+    axios.get("https://stocks-task.herokuapp.com/trans").then((res) => {
       console.log(res.data);
       if (res.data.success) {
         setAverage(res.data.average);
@@ -23,7 +23,7 @@ function App() {
   });
 
   const reset = () => {
-    axios.delete("/reset", {}).then((res) => {
+    axios.delete("https://stocks-task.herokuapp.com/reset", {}).then((res) => {
       getData();
       console.log(res);
     });
@@ -42,7 +42,9 @@ function App() {
         <div>
           <form method="post" action="/" enctype="multipart/form-data">
             <input className="cursor" required type="file" name="csv"></input>
-            <button className="cursor" type="submit">Submit</button>
+            <button className="cursor" type="submit">
+              Submit
+            </button>
           </form>
         </div>
         <div>
