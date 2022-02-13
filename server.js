@@ -22,11 +22,12 @@ const storage = multer.diskStorage({
 var uplaods = multer({ storage: storage });
 
 const mongo_uri =
+  process.env.MONGODB_URI ||
   "mongodb+srv://" +
-  process.env.MONGODB_USER +
-  ":" +
-  process.env.MONGODB_PASSWORD +
-  "@cluster0.cfkyl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+    process.env.MONGODB_USER +
+    ":" +
+    process.env.MONGODB_PASSWORD +
+    "@cluster0.cfkyl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 mongoose.connect(mongo_uri, {
   useNewUrlParser: true,
