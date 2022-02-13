@@ -8,14 +8,9 @@ function App() {
   const [transactions, setTransactions] = useState([]);
 
   const getData = () => {
-    axios.get("https://stocks-task.herokuapp.com/trans").then((res) => {
-      console.log(res.data);
-      if (res.data.success) {
-        setAverage(res.data.average);
-        setProfit(res.data.profit);
-        setTransactions(res.data.trans);
-      }
-    });
+    fetch("https://stocks-task.herokuapp.com/trans")
+      .then((response) => response.json())
+      .then((data) => console.log(data));
   };
 
   useEffect(() => {
@@ -23,7 +18,7 @@ function App() {
   });
 
   const reset = () => {
-    axios.delete("https://stocks-task.herokuapp.com/reset", {}).then((res) => {
+    axios.delete("/reset").then((res) => {
       getData();
       console.log(res);
     });
