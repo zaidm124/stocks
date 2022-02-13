@@ -9,7 +9,7 @@ function App() {
 
   const getData = () => {
     axios.get("/trans").then((res) => {
-      console.log(res.data);
+      // console.log(res.data);
       if (res.data.success) {
         setAverage(res.data.average);
         setProfit(res.data.profit);
@@ -23,9 +23,9 @@ function App() {
   });
 
   const reset = () => {
-    axios.delete("/reset", {}).then((res) => {
+    axios.delete("/reset").then((res) => {
       getData();
-      console.log(res);
+      // console.log(res);
     });
   };
 
