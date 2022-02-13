@@ -92,6 +92,10 @@ app.post("/", uplaods.single("csv"), (req, res) => {
     .fromFile(req.file.path)
     .then(async (jsonObj) => {
       const current = jsonObj[0];
+      if (!current) {
+        res.redirect("/");
+        return;
+      }
       if (current.trade_typr == "SELL") {
         let profit = 0;
         const allTrans = await stockModel.find();
