@@ -8,9 +8,9 @@ function App() {
   const [transactions, setTransactions] = useState([]);
 
   const getData = () => {
-    fetch("https://stocks-task.herokuapp.com/trans")
-      .then((response) => response.json())
-      .then((data) => console.log(data));
+    fetch("https://stocks-task.herokuapp.com/trans").then((response) =>
+      console.log(response.data)
+    );
   };
 
   useEffect(() => {
