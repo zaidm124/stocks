@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
 const stockModel = require("./model/stock.model");
+const cors = require("cors");
 
 const csv = require("csvtojson");
 const bodyParser = require("body-parser");
@@ -36,6 +37,12 @@ connection.once("open", () => {
 });
 
 const app = express();
+
+let corsOptions = {
+  origin: "*",
+};
+
+app.use(cors(corsOptions));
 const PORT = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
