@@ -62,8 +62,30 @@ if (process.env.NODE_ENV === "production") {
 }
 
 app.get("/trans", async (req, res) => {
-  // res.sendFile(__dirname + "/index.html");
   const resp = await stockModel.find();
+
+  let q = 0;
+  let profit = 0;
+  for (let i = 0; i < resp.length; i++) {
+    const current = resp[i];
+    if (current.trade_typr == "SELL") {
+      let leftOver = current.quantity;
+      while (leftOver > 0) {
+        const rem = resp[q];
+        if (current.quantity < resp[q].quantity) {
+          resp[q].quantity -= current.quantity;
+          leftOver = 0;
+          profit += current.quantity * (current.price - resp[q].price);
+        } else {
+          profit += resp[q].quantity * (current.price - resp[q].price);
+          leftOver -= resp[q].quantity;
+          current.quantity -= resp[q].quantity;
+          resp[q].quantity = 0;
+          q++;
+        }
+      }
+    }
+  }
   //   console.log(resp);
   if (resp.length) {
     let avgPrice = 0;
@@ -77,9 +99,6 @@ app.get("/trans", async (req, res) => {
     }
     avgPrice = avgPrice / total;
     avgPrice = avgPrice.toFixed(4);
-    let getProfit = await profitModel.find();
-    const profit = getProfit[0].profit;
-    // console.log(avgPrice);
     const transactions = await stockModel.find();
     res.json({ success: true, average: avgPrice, profit, trans: transactions });
   } else {
@@ -87,7 +106,8 @@ app.get("/trans", async (req, res) => {
   }
 });
 
-app.post("/", uplaods.single("csv"), (req, res) => {
+app.post("/", uplaods.single("csv"), async (req, res) => {
+  await stockModel.deleteMany();
   csv()
     .fromFile(req.file.path)
     .then(async (jsonObj) => {
@@ -96,53 +116,7 @@ app.post("/", uplaods.single("csv"), (req, res) => {
         res.redirect("/");
         return;
       }
-      if (current.trade_typr == "SELL") {
-        let profit = 0;
-        const allTrans = await stockModel.find();
-        const duplicate = await stockModel.findOne({ id: current.id });
-        if (duplicate) {
-          res.redirect("/");
-          return;
-        }
-        if (!allTrans.length) {
-          res.redirect("/");
-          return;
-        }
-        let leftOver = current.quantity;
-        for (let i = 0; i < allTrans.length; i++) {
-          const trans = allTrans[i];
-          if (trans.quantity > 0 && leftOver > 0) {
-            let sell = 0;
-            if (trans.quantity > leftOver) {
-              sell = leftOver;
-              profit += sell * (current.price - trans.price);
-              leftOver = 0;
-            } else {
-              sell = trans.quantity;
-              profit += sell * (current.price - trans.price);
-              leftOver -= trans.quantity;
-            }
-            let toUpdate = await stockModel.findOne({ id: trans.id });
-            toUpdate.quantity = trans.quantity - sell;
-            await toUpdate.save();
-          }
-        }
-        let getProfit = await profitModel.find();
-        let toUpdateProfit = await profitModel.findOne({
-          profit: getProfit[0].profit,
-        });
-        // console.log(toUpdateProfit);
-        toUpdateProfit.profit += profit;
-        await toUpdateProfit.save();
-      }
-      //   console.log(jsonObj);
-      let stock = new stockModel({
-        id: current.id,
-        trade_typr: current.trade_typr,
-        quantity: current.quantity,
-        price: current.price,
-      });
-      await stock.save((err, doc, num) => {
+      stockModel.insertMany(jsonObj, (err, data) => {
         if (err) {
           console.log(err);
         }
